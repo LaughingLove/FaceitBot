@@ -3,6 +3,8 @@ from discord.ext import commands
 
 import json
 
+import time
+
 from urllib.parse import urlparse
 
 from faceit_api.faceit_data import FaceitData
@@ -74,11 +76,11 @@ class Team:
                     team['name'], team['name']),
                 inline=False
             )
-
+            embed.set_footer(text="Data retrieved at {}".format(time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())))
             await ctx.send(embed=embed)
 
     @commands.command(aliases=['teamstats', 'team-stats'])
-    async def team_stats(self, ctx, name_or_url=None, game=None):
+    async def team_stats(self, ctx, name_or_url=None, game=None, map=None):
         if name_or_url is None:
             await ctx.send("Please specify a name or URL")
         else:
@@ -114,64 +116,89 @@ class Team:
                     )
 
                     team_name = self.faceit_data.team_details(team['team_id'])
-
                     embed.set_author(name=team_name['name'])
-
-                    embed.add_field(
-                        name="Current Win Streak",
-                        value=team['lifetime']['Current Win Streak'],
-                        inline=True
-                    )
-                    embed.add_field(
-                        name="Longest Win Streak",
-                        value=team['lifetime']['Longest Win Streak'],
-                        inline=True
-                    )
-                    embed.add_field(
-                        name="Total number of matches",
-                        value=team['lifetime']['Matches'],
-                        inline=True
-                    )
-
-                    recent_results = []
-
-                    for result in team['lifetime']["Recent Results"]:
-                        if result == "1":
-                            recent_results.append("W")
-                        elif result == "0":
-                            recent_results.append("L")
-
-                    embed.add_field(
-                        name = "Win ratio",
-                        value = "{}%".format(team['lifetime']['Win Rate %']),
-                        inline=True
-                    )
-
-                    embed.add_field(
-                        name="Recent results",
-                        value= ' '.join(recent_results),
-                        inline=True
-                    )
-
-                    embed.add_field(
-                        name="Team K/D ratio",
-                        value= team['lifetime']['Team Average K/D Ratio'],
-                        inline=True
-                    )
-
-                    for segment in team['segments']:
+                    if map is None:
                         embed.add_field(
-                            name = segment['label'],
-                            value="""
-                            Matches: {}
-                            Win rate: {}%
-                            Wins: {}
-                            """.format(segment['stats']['Matches'], segment['stats']['Win Rate %'], segment['stats']['Wins']),
-                            inline=False
+                            name="Current Win Streak",
+                            value=team['lifetime']['Current Win Streak'],
+                            inline=True
+                        )
+                        embed.add_field(
+                            name="Longest Win Streak",
+                            value=team['lifetime']['Longest Win Streak'],
+                            inline=True
+                        )
+                        embed.add_field(
+                            name="Total number of matches",
+                            value=team['lifetime']['Matches'],
+                            inline=True
                         )
 
+                        recent_results = []
 
-                    await ctx.send(embed=embed)
+                        for result in team['lifetime']["Recent Results"]:
+                            if result == "1":
+                                recent_results.append("W")
+                            elif result == "0":
+                                recent_results.append("L")
+
+                        embed.add_field(
+                            name = "Win rate",
+                            value = "{}%".format(team['lifetime']['Win Rate %']),
+                            inline=True
+                        )
+
+                        embed.add_field(
+                            name="Recent results",
+                            value= ' '.join(recent_results),
+                            inline=True
+                        )
+
+                        embed.add_field(
+                            name="Team K/D ratio",
+                            value= team['lifetime']['Team Average K/D Ratio'],
+                            inline=True
+                        )
+
+                        # for segment in team['segments']:
+                        #     embed.add_field(
+                        #         name = segment['label'],
+                        #         value="""
+                        #         Matches: {}
+                        #         Win rate: {}%
+                        #         Wins: {}
+                        #         """.format(segment['stats']['Matches'], segment['stats']['Win Rate %'], segment['stats']['Wins']),
+                        #         inline=False
+                        #     )
+
+                        embed.add_field(
+                            name="Maps",
+                            value="""To get stats on a specific map, use:
+                            .team-stats [team-or-url] [game] <map e.g. de_cache>""",
+                            inline=False
+                        )
+                        embed.set_footer(text="Data retrieved at {}".format(time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())))
+                        await ctx.send(embed=embed)
+                    else:
+                        found = False
+                        counter = 0
+
+                        for segment in team['segments']:
+                            if segment['label'] == map:
+                                found = True
+                                break
+                            else:
+                                counter += 1
+
+                        if found:
+                            map_stats = team['segments'][counter]
+                            embed.description = "{}'s stats on {}".format(team_name['name'], map)
+                            embed.set_thumbnail(url=map_stats["img_small"])
+                            embed.set_footer(text="Data retrieved at {}".format(time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())))
+                            await ctx.send(embed=embed)
+                        else:
+                            await ctx.send("The map you inputted was wrong!")
+
 
 
 def setup(bot):

@@ -7,7 +7,7 @@ class OnReady:
     
     async def on_ready(self):
         print("{} is now online".format(self.bot.user.name))
-        await self.bot.change_presence(activity=discord.Game("Use ?help to get started"))
+        await self.bot.change_presence(activity=discord.Game("Use .help to get started"))
 
 def setup(bot):
     bot.add_cog(OnReady(bot))
