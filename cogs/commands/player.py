@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 import json
 
-import time
+from datetime import datetime
 
 from faceit_api.faceit_data import FaceitData
 
@@ -10,6 +10,8 @@ with open('./config_bot.json') as f:
     jsonfile = json.load(f)
 
 faceit_token = jsonfile['faceit-token']
+
+current_time = datetime.now().strftime('%Y-%m-%d %H:%M')
 
 
 class Player:
@@ -110,7 +112,7 @@ class Player:
                     Reason: {}""".format(player_info['bans'][0]['created_at'], player_info['bans'][0]['ends_at'], player_info['bans'][0]['reason']),
                     inline=True
                 )
-            embed.set_footer(text="Data retrieved at {}".format(time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())))
+            embed.set_footer(text="Data retrieved at {}".format(current_time))
             await ctx.send(embed=embed)
 
     @commands.command(aliases=['player-stats', 'playerstats'])
@@ -201,7 +203,7 @@ class Player:
                                 player_stats['lifetime']['Average Headshots %']),
                             inline=True
                         )
-                        embed.set_footer(text="Data retrieved at {}".format(time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())))
+                        embed.set_footer(text="Data retrieved at {}".format(current_time))
                         await ctx.send(embed=embed)
                     else:
                         found = False
@@ -274,7 +276,7 @@ class Player:
                                 Total Headshots: {}
                                 Headshots per match: {}""".format(map_stats['stats']['Kills'], map_stats['stats']['Triple Kills'], map_stats['stats']['Quadro Kills'], map_stats['stats']['Penta Kills'], map_stats['stats']['Headshots'], map_stats['stats']['Headshots per Match'])
                             )
-                            embed.set_footer(text="Data retrieved at {}".format(time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())))
+                            embed.set_footer(text="Data retrieved at {}".format(current_time))
                             await ctx.send(embed=embed)
                         else:
                             await ctx.send("Couldn't find the map, are you sure said the map correctly (e.g. de_cache)?")

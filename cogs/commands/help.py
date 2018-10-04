@@ -7,13 +7,17 @@ class Help:
     
     @commands.command()
     async def help(self, ctx, category=None):
-
         embed = discord.Embed(
             color=discord.Color.purple()
         )
         embed.title = ":question: Help :question:"
         
         if category is None:
+            embed.add_field(
+                name=":exclamation: Info",
+                value="Gives you info about the bot.",
+                inline=False
+            )
             embed.add_field(
                 name=":mag: Player Category",
                 value="Gives you info and stats on a player! Use .help player for more info.",
@@ -56,5 +60,11 @@ class Help:
         if ctx.guild is not None:
             await ctx.send("Sent you a PM")
 
+    @commands.command()
+    async def info(self, ctx):
+        user = self.bot.get_user(127638450437488651)
+        await ctx.send("This bot was written by {} using discord.py and the Faceit API. If you have any questions please message add me on discord.".format(user.mention))
+
 def setup(bot):
+
     bot.add_cog(Help(bot))
