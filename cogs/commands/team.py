@@ -194,6 +194,20 @@ class Team:
                             map_stats = team['segments'][counter]
                             embed.description = "{}'s stats on {}".format(team_name['name'], map)
                             embed.set_thumbnail(url=map_stats["img_small"])
+
+                            embed.add_field(
+                                name="Matches",
+                                value=map_stats['stats']['Matches']
+                            )
+                            embed.add_field(
+                                name="Win Rate %",
+                                value="{}%".format(map_stats['stats']['Win Rate %'])
+                            )
+                            embed.add_field(
+                                name="Total Wins",
+                                value=map_stats['stats']['Wins']
+                            )
+
                             embed.set_footer(text="Data retrieved at {}".format(time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())))
                             await ctx.send(embed=embed)
                         else:

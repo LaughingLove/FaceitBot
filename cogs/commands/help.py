@@ -6,33 +6,51 @@ class Help:
         self.bot = bot
     
     @commands.command()
-    async def help(self, ctx):
-        res = (
-           ":question: **Help** :question:\n"
-            "-----------------------------\n"
-            "\n"
-            ":question: **Help Command**\n"
-            "Gives you help information\n"
-            "*.help*\n"
-            "\n"
-            ":mag: **Player Command**\n"
-            "Gives you information on a player\n"
-            "*.player [faceit-nickname]*\n"
-            "\n"
-            ":eyes: **Player Stats Command**\n"
-            "Allows you to see a player's stats per game or even per map (for CS:GO at least)\n"
-            "*.player-stats [nickname] [game] <map>* [] -- Required <> -- Optional. If you add a map make sure it is proper format (e.g. de_cache and not cache)\n"
-            "\n"
-            ":mag: **Team Command**\n"
-            "Gives you information on a team\n"
-            "*.team [name-or-url]* -- Use the FACEIT team name or their URL\n"
-            "\n"
-            ":eyes: **Team Stats Command**\n"
-            "Gives you information on a team's stats\n"
-            "*.team-stats [name-or-url] [game]* -- Specify a FACEIT team name or URL, and a game (e.g. 'csgo')\n"
-            "\n"
+    async def help(self, ctx, category=None):
+
+        embed = discord.Embed(
+            color=discord.Color.purple()
         )
-        await ctx.author.send(res)
+        embed.title = ":question: Help :question:"
+        
+        if category is None:
+            embed.add_field(
+                name=":mag: Player Category",
+                value="Gives you info and stats on a player! Use .help player for more info.",
+                inline=False
+            )
+            embed.add_field(
+                name=":mag: Team Category",
+                value="Gives you info and stats on a FACEIT team! Use .help team for more info.",
+                inline=False
+            )
+        elif category.lower() == "player":
+            embed.add_field(
+                name="Player Command",
+                value="""Gives you info on a player!
+                Use *.player [faceit-nickname]*
+                """
+            )
+            embed.add_field(
+                name="Player Stats Command",
+                value="""Gives you stats on a player!
+                Use *.player-stats [faceit-nickname] [game] <map>*
+                """
+            )
+        elif category.lower() == "team":
+            embed.add_field(
+                name="Team Command",
+                value="""Gives you info on a team!
+                Use *.team [team name or URL to team]*
+                """
+            )
+            embed.add_field(
+                name="Team Stats Command",
+                value="""Gives you stats on a team!
+                Use *.team-stats [team name or URL to team] [game] <map>*
+                """
+            )
+        await ctx.author.send(embed=embed)
 
         # Checking if it's a DM channel
         if ctx.guild is not None:
