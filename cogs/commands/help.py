@@ -15,8 +15,12 @@ class Help:
         if category is None:
             embed.add_field(
                 name=":exclamation: Info",
-                value="Gives you info about the bot.",
+                value="Gives you info about the bot. *.info*",
                 inline=False
+            )
+            embed.add_field(
+                name=":arrow_up: Levels",
+                value="Gives you an ELO to level table! *.levels*"
             )
             embed.add_field(
                 name=":mag: Player Category",

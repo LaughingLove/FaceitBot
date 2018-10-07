@@ -18,6 +18,18 @@ class Player:
     def __init__(self, bot):
         self.bot = bot
         self.faceit_data = FaceitData(faceit_token)
+        self.skill_levels = {
+            1: 800,
+            2: 950,
+            3: 1100,
+            4: 1250,
+            5: 1400,
+            6: 1550,
+            7: 1700,
+            8: 1850,
+            9: 2000,
+            10: 2001
+        }
 
     @commands.command()
     async def player(self, ctx, player=None, game=None):
@@ -47,19 +59,32 @@ class Player:
             )
 
             if player_info['games']:
+                # Gets all the games the player has
                 all_games = list(player_info['games'].keys())
-
+                #Checks if user specified game
                 if game is None:
+                    # Iterates through all the user games
                     for game_for_player in all_games:
+                        # If the game is CSGO then we format it so it's nice
                         if game_for_player == "csgo":
                             game_title = "CS:GO"
                         else:
                             game_title = game_for_player
+
+                        # Get the users current ELO
+                        faceit_elo = player_info['games'][all_games[all_games.index(
+                                game_for_player)]]['faceit_elo']
+                        # Checks how much ELO is needed for the next FACEIT level, if you're level 10 its N/A
+                        elo_needed = "N/A"
+                        for level in self.skill_levels.values():
+                            if faceit_elo < level:
+                                elo_needed = (level + 1) - faceit_elo
+                                break
+
                         embed.add_field(
                             name="{} ELO".format(game_title),
-                            value=player_info['games'][all_games[all_games.index(
-                                game_for_player)]]['faceit_elo'],
-                            inline=True
+                            value=faceit_elo,
+                            inline=False
                         )
                         embed.add_field(
                             name="{} skill level".format(game_title),
@@ -67,16 +92,32 @@ class Player:
                                 game_for_player)]]['skill_level_label'],
                             inline=True
                         )
+                        embed.add_field(
+                            name="ELO needed to level up for {}".format(
+                                game_title),
+                            value=elo_needed
+                        )
                 else:
+                    faceit_elo = player_info['games'][game]['faceit_elo']
+                    elo_needed = "N/A"
+                    for level in self.skill_levels.values():
+                        if faceit_elo < level:
+                            elo_needed = (level + 1) - faceit_elo
+                            break
                     embed.add_field(
                         name="{} ELO".format(game.upper()),
-                        value=player_info['games'][game]['faceit_elo'],
+                        value=faceit_elo,
                         inline=True
                     )
                     embed.add_field(
                         name="{} skill level".format(game.upper()),
                         value=player_info['games'][game]['skill_level_label'],
                         inline=True
+                    )
+                    embed.add_field(
+                        name="ELO needed to level up for {}".format(
+                            game.upper()),
+                        value=elo_needed
                     )
 
             # infractions = list(player_info['infractions'].keys())
@@ -203,7 +244,8 @@ class Player:
                                 player_stats['lifetime']['Average Headshots %']),
                             inline=True
                         )
-                        embed.set_footer(text="Data retrieved at {}".format(current_time))
+                        embed.set_footer(
+                            text="Data retrieved at {}".format(current_time))
                         await ctx.send(embed=embed)
                     else:
                         found = False
@@ -224,23 +266,25 @@ class Player:
                             embed.set_thumbnail(url=map_stats["img_small"])
 
                             embed.add_field(
-                                name= "Average K/D Ratio",
-                                value= map_stats['stats']['Average K/D Ratio'],
+                                name="Average K/D Ratio",
+                                value=map_stats['stats']['Average K/D Ratio'],
                                 inline=True
                             )
                             embed.add_field(
                                 name="Average Kills",
-                                value = map_stats['stats']['Average Kills'],
+                                value=map_stats['stats']['Average Kills'],
                                 inline=True
                             )
                             embed.add_field(
                                 name="Average Headshot %",
-                                value="{}%".format(map_stats['stats']['Average Headshots %']),
+                                value="{}%".format(
+                                    map_stats['stats']['Average Headshots %']),
                                 inline=True
                             )
                             embed.add_field(
                                 name="Win Rate",
-                                value="{}%".format(map_stats['stats']['Win Rate %']),
+                                value="{}%".format(
+                                    map_stats['stats']['Win Rate %']),
                                 inline=True
                             )
                             embed.add_field(
@@ -276,7 +320,8 @@ class Player:
                                 Total Headshots: {}
                                 Headshots per match: {}""".format(map_stats['stats']['Kills'], map_stats['stats']['Triple Kills'], map_stats['stats']['Quadro Kills'], map_stats['stats']['Penta Kills'], map_stats['stats']['Headshots'], map_stats['stats']['Headshots per Match'])
                             )
-                            embed.set_footer(text="Data retrieved at {}".format(current_time))
+                            embed.set_footer(
+                                text="Data retrieved at {}".format(current_time))
                             await ctx.send(embed=embed)
                         else:
                             await ctx.send("Couldn't find the map, are you sure said the map correctly (e.g. de_cache)?")
